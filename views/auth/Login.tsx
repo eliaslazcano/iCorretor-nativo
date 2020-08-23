@@ -2,8 +2,8 @@ import React from 'react';
 import { StyleSheet, View, TouchableWithoutFeedback } from 'react-native';
 import { Layout, Card, Text, Select, SelectItem, Input, Icon, Button } from '@ui-kitten/components';
 import Colibri from '../../assets/svg/colibri.svg';
-import CreciHelper from '../../helpers/CreciHelper'
-import IMask from 'imask';
+import CreciHelper from '../../helpers/CreciHelper';
+import { InputCpf, InputSenha, SelectRegional } from '../../components/FormInputs';
 
 function Login() { //TODO => Realizar o Select do regional, utilizar o CreciHelper na tratativa.
   //States
@@ -11,28 +11,11 @@ function Login() { //TODO => Realizar o Select do regional, utilizar o CreciHelp
   const [cpf, setCpf] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [hidePassword, setHidePassword] = React.useState(true);
-
-  //Refs
-  let refInputCpf: Input | null = null;
   
   //Properties
-  let cpfUnmasked = '';
   const regionais = CreciHelper.regionais.map(r => ({id: r.id, texto: r.id + 'º' + ' - ' + r.ufExtenso.toUpperCase()}));
 
-  //Effects
-  React.useEffect(() => {
-    if (refInputCpf && cpf) {
-      const masked = IMask.createMask({
-        mask: '000.000.000-00',
-      });
-      const maskedValue = masked.resolve(cpf);
-      if (cpf !== maskedValue) {
-        setCpf(maskedValue);
-        cpfUnmasked = masked.unmaskedValue;
-      }
-    }
-  }, [cpf]);
-
+  //SubComponents
   const mensagemCompatibilidadeParcial = () => (
     <View style={{flexDirection: 'row', alignItems: 'center'}}>
       <Icon
@@ -51,38 +34,16 @@ function Login() { //TODO => Realizar o Select do regional, utilizar o CreciHelp
         <View style={styles.cardBody}>
             <Colibri style={styles.colibri}/>
             <Text category='h6'>i-Corretor</Text>
-            <Select
-              label='Regional'
-              placeholder='Selecione o CRECI'
-              selectedIndex={regional}
+            <SelectRegional
               onSelect={index => setRegional(index)}
-              value={regional ? regionais[regional.row].texto : undefined}
-              caption={!regional ? undefined : (CreciHelper.utilizaConselhoNet(regionais[regional.row].id) ? undefined : mensagemCompatibilidadeParcial)}
               style={styles.input}
-            >
-              {regionais.map(r => <SelectItem title={r.texto} key={r.id}/>)}
-            </Select>
-            <Input
-              label='CPF'
-              placeholder='Insira seu CPF'
-              onChangeText={text => setCpf(text)}
-              value={cpf}
-              ref={el => refInputCpf = el}
-              style={styles.input}
-              keyboardType='numeric'
             />
-            <Input
-              label='Senha'
-              placeholder='Insira sua senha'
+            <InputCpf
+              onChangeText={text => setCpf(text)}
+              style={styles.input}
+            />
+            <InputSenha
               onChangeText={text => setPassword(text)}
-              autoCapitalize='none'
-              autoCorrect={false}
-              secureTextEntry={hidePassword}
-              accessoryRight={(props) => (
-                <TouchableWithoutFeedback onPress={() => setHidePassword(!hidePassword)}>
-                  <Icon {...props} name={hidePassword ? 'eye-off' : 'eye'}/>
-                </TouchableWithoutFeedback>
-              )}
               style={styles.input}
             />
             <Button status='primary' size='small' style={[styles.buttons, {marginBottom: 8}]}>ACESSAR</Button>
