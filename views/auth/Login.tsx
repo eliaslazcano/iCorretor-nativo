@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, TouchableWithoutFeedback } from 'react-native';
 import { Layout, Card, Text, Select, SelectItem, Input, Icon, Button } from '@ui-kitten/components';
 import Colibri from '../../assets/svg/colibri.svg';
+import CreciHelper from '../../helpers/CreciHelper'
 import IMask from 'imask';
 
 function Login() { //TODO => Realizar o Select do regional, utilizar o CreciHelper na tratativa.
@@ -16,6 +17,7 @@ function Login() { //TODO => Realizar o Select do regional, utilizar o CreciHelp
   
   //Properties
   let cpfUnmasked = '';
+  const regionais = CreciHelper.regionais.map(r => ({id: r.id, texto: r.id + 'º' + ' - ' + r.ufExtenso.toUpperCase()}));
 
   //Effects
   React.useEffect(() => {
@@ -31,6 +33,17 @@ function Login() { //TODO => Realizar o Select do regional, utilizar o CreciHelp
     }
   }, [cpf]);
 
+  const mensagemCompatibilidadeParcial = () => (
+    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+      <Icon
+        style={{height: 12, width: 12, marginRight: 4}}
+        fill='#ffaa00'  
+        name='alert-circle'
+      />
+      <Text style={{fontSize: 12, color: '#ffaa00'}}>Compatibilidade Parcial</Text>
+    </View>
+  );
+
   //View
   return (
     <Layout level='3' style={styles.container}>
@@ -42,22 +55,12 @@ function Login() { //TODO => Realizar o Select do regional, utilizar o CreciHelp
               label='Regional'
               placeholder='Selecione o CRECI'
               selectedIndex={regional}
-              onSelect={index => console.log(index)}
+              onSelect={index => setRegional(index)}
+              value={regional ? regionais[regional.row].texto : undefined}
+              caption={!regional ? undefined : (CreciHelper.utilizaConselhoNet(regionais[regional.row].id) ? undefined : mensagemCompatibilidadeParcial)}
               style={styles.input}
             >
-              <SelectItem title='1º - RIO DE JANEIRO'/>
-              <SelectItem title='2º - SÃO PAULO'/>
-              <SelectItem title='3º - RIO GRANDE DO SUL'/>
-              <SelectItem title='4º - MINAS GERAIS'/>
-              <SelectItem title='5º - GOIÁS'/>
-              <SelectItem title='6º - PARANÁ'/>
-              <SelectItem title='7º - PERNAMBUCO'/>
-              <SelectItem title='8º - DISTRITO FEDERAL'/>
-              <SelectItem title='9º - BAHIA'/>
-              <SelectItem title='11º - SANTA CATARINA'/>
-              <SelectItem title='12º - PARÁ'/>
-              <SelectItem title='13º - ESPÍRITO SANTO'/>
-              <SelectItem title='14º - MATO GROSSO DO SUL'/>
+              {regionais.map(r => <SelectItem title={r.texto} key={r.id}/>)}
             </Select>
             <Input
               label='CPF'
